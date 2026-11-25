@@ -132,17 +132,33 @@
       color: #64748b;
       line-height: 1.5;
     }
+    .btn-wa {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 10px;
+      padding: 8px 14px;
+      background: #dcfce7;
+      color: #15803d;
+      border: 1px solid #86efac;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+    .btn-wa:hover { background: #bbf7d0; }
   </style>
 </head>
 <body>
 
 <div class="card">
   <div class="brand-header">
-    <!-- Logo otomatis tampil jika file logo.png sudah diunggah ke GitHub -->
     <img src="logo.png" alt="Logo PKBM" class="logo-sekolah" onerror="this.style.display='none'">
     <span class="badge-portal">Learning Management System</span>
     <h1>PKBM Soemarno Soekarjadi Kartowikromo</h1>
-    <p class="sub">Paket A • Paket B • Paket C</p>
+    <p class="sub">Paket B • Paket C</p>
   </div>
 
   <div id="alertBox" class="alert"></div>
@@ -164,7 +180,13 @@
 
   <div class="footer-note">
     Gunakan NISN (Warga Belajar) atau Username (Tutor/Pengelola).<br>
-    Kendala akun hubungi Pengelola PKBM.
+    Kendala akun hubungi Pengelola PKBM.<br>
+    <a href="https://wa.me/6285113217342?text=Halo%20Admin%20LMS%20PKBM%20SSK,%20saya%20mengalami%20kendala%20login%20akun.%0ANama%20:%20%0ANISN/Username%20:%20" 
+       target="_blank" 
+       rel="noopener" 
+       class="btn-wa">
+      Hubungi Admin via WhatsApp
+    </a>
   </div>
 </div>
 
@@ -173,7 +195,7 @@
   import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
   import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-  // TEMPEL KONFIGURASI FIREBASE SEKOLAH DI SINI
+  // 1. TEMPEL KONFIGURASI FIREBASE SEKOLAH DI SINI
   const firebaseConfig = {
     apiKey: "AIzaSyD301EhbL-k9Sv0XqP59A7dRRhdUNBD0Oo",
     authDomain: "lms-pkbm-ssk.firebaseapp.com",
@@ -207,7 +229,9 @@
 
     let rawUser = document.getElementById('username').value.trim().toLowerCase();
     const password = passInput.value;
-    const email = rawUser.includes('@') ? rawUser : `${rawUser}@pkbm-ssk.id`;
+    
+    // Otomatis melengkapi @pkbmssk.sch.id jika pengguna hanya mengetik NISN / username
+    const email = rawUser.includes('@') ? rawUser : `${rawUser}@pkbmssk.sch.id`;
 
     try {
       const cred = await signInWithEmailAndPassword(auth, email, password);
