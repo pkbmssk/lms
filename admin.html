@@ -100,11 +100,8 @@
           <input type="text" id="jKelas" placeholder="Contoh: XI" required>
         </div>
         <div>
-          <label>Hari</label>
-          <select id="jHari">
-            <option>Senin</option><option>Selasa</option><option>Rabu</option>
-            <option>Kamis</option><option>Jumat</option><option selected>Sabtu</option><option>Minggu</option>
-          </select>
+          <label>Tanggal Pertemuan (Jumat/Sabtu)</label>
+          <input type="date" id="jTanggal" required>
         </div>
       </div>
       <div class="grid-3">
@@ -175,7 +172,7 @@
           <input type="text" id="uNisn" placeholder="0081234567">
         </div>
         <div>
-          <label>Mata Pelajaran (Jika Tutor)</label>
+          <label>Mata Pelajaran (Jika Tutor/Rangkap)</label>
           <input type="text" id="uMapel" placeholder="Contoh: Ekonomi & Sejarah">
         </div>
       </div>
@@ -258,10 +255,14 @@
 
   document.getElementById('formJadwal').addEventListener('submit', async (e) => {
     e.preventDefault();
+    const tglVal = document.getElementById('jTanggal').value;
+    const namaHari = new Date(tglVal + 'T00:00:00').toLocaleDateString('id-ID', { weekday: 'long' });
+
     await push(ref(db, 'jadwal'), {
       paket: document.getElementById('jPaket').value,
       kelas: document.getElementById('jKelas').value.trim().toUpperCase(),
-      hari: document.getElementById('jHari').value,
+      tanggal: tglVal,
+      hari: namaHari,
       jam: document.getElementById('jJam').value.trim(),
       mapel: document.getElementById('jMapel').value.trim(),
       tutor_nama: document.getElementById('jTutor').value.trim(),
@@ -276,16 +277,23 @@
       const el = document.getElementById('daftarJadwal');
       el.innerHTML = '';
       if (!snap.exists()) { el.innerHTML = '<p class="meta">Belum ada jadwal.</p>'; return; }
-      snap.forEach((child) => {
-        const j = child.val();
+
+      const list = [];
+      snap.forEach((child) => list.push({ key: child.key, ...child.val() }));
+      list.sort((a, b) => (a.tanggal || '').localeCompare(b.tanggal || ''));
+
+      list.forEach((j) => {
+        const tglIndo = j.tanggal
+          ? new Date(j.tanggal + 'T00:00:00').toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
+          : '-';
         el.innerHTML += `
           <div class="list-row">
             <div>
               <span class="badge">${j.paket} • Kls ${j.kelas}</span>
-              <strong>${j.mapel}</strong> (${j.hari}, ${j.jam})<br>
+              <strong>${j.mapel}</strong> (${j.hari}, ${tglIndo} • ${j.jam})<br>
               <span class="meta">Tutor: ${j.tutor_nama}</span>
             </div>
-            <button class="btn-del" onclick="hapusNode('jadwal/${child.key}')">Hapus</button>
+            <button class="btn-del" onclick="hapusNode('jadwal/${j.key}')">Hapus</button>
           </div>
         `;
       });
