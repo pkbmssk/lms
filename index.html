@@ -3,48 +3,169 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login LMS - PKBM Soemarno Soekarjadi Kartowikromo</title>
+  <title>Portal Pembelajaran - PKBM Soemarno Soekarjadi Kartowikromo</title>
+  <link rel="icon" type="image/png" href="logo.png">
   <style>
-    * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+    * { box-sizing: border-box; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
     body {
-      margin: 0; background: #f1f5f9; display: flex;
-      justify-content: center; align-items: center; min-height: 100vh; padding: 16px;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      background: linear-gradient(135deg, #f0fdfa 0%, #e0f2fe 50%, #f1f5f9 100%);
     }
     .card {
-      background: #ffffff; padding: 28px 24px; border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08); width: 100%; max-width: 380px;
+      background: #ffffff;
+      padding: 32px 28px;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+      border: 1px solid #e2e8f0;
+      width: 100%;
+      max-width: 400px;
     }
-    h1 { font-size: 1.25rem; margin: 0 0 4px; color: #0f172a; text-align: center; }
-    p.sub { font-size: 0.85rem; color: #64748b; text-align: center; margin: 0 0 24px; }
-    label { display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 6px; }
+    .brand-header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .logo-sekolah {
+      width: 82px;
+      height: 82px;
+      object-fit: contain;
+      margin: 0 auto 12px;
+      display: block;
+    }
+    .badge-portal {
+      display: inline-block;
+      background: #ccfbf1;
+      color: #0f766e;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 99px;
+      margin-bottom: 8px;
+    }
+    h1 {
+      font-size: 1.15rem;
+      line-height: 1.35;
+      margin: 0 0 4px;
+      color: #0f172a;
+    }
+    p.sub {
+      font-size: 0.83rem;
+      color: #64748b;
+      margin: 0;
+    }
+    label {
+      display: block;
+      font-size: 0.84rem;
+      font-weight: 600;
+      color: #334155;
+      margin-bottom: 6px;
+    }
+    .input-group {
+      position: relative;
+      margin-bottom: 16px;
+    }
     input {
-      width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1;
-      border-radius: 8px; font-size: 0.95rem; margin-bottom: 16px;
+      width: 100%;
+      padding: 11px 14px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
     }
-    input:focus { outline: none; border-color: #0d9488; }
-    button {
-      width: 100%; padding: 11px; background: #0d9488; color: #fff;
-      border: none; border-radius: 8px; font-size: 0.95rem; font-weight: 600; cursor: pointer;
+    input:focus {
+      outline: none;
+      border-color: #0d9488;
+      box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.15);
     }
-    button:disabled { background: #94a3b8; }
+    .toggle-pass {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: #64748b;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 4px;
+      width: auto;
+    }
+    button.btn-submit {
+      width: 100%;
+      padding: 12px;
+      background: #0d9488;
+      color: #ffffff;
+      border: none;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-top: 4px;
+    }
+    button.btn-submit:hover { background: #0f766e; }
+    button.btn-submit:disabled { background: #94a3b8; cursor: not-allowed; }
     .alert {
-      display: none; background: #fee2e2; color: #b91c1c; padding: 10px;
-      border-radius: 8px; font-size: 0.85rem; margin-bottom: 16px; text-align: center;
+      display: none;
+      background: #fee2e2;
+      color: #b91c1c;
+      border: 1px solid #fecaca;
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 0.84rem;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+    .footer-note {
+      margin-top: 20px;
+      padding-top: 14px;
+      border-top: 1px solid #f1f5f9;
+      text-align: center;
+      font-size: 0.78rem;
+      color: #64748b;
+      line-height: 1.5;
     }
   </style>
 </head>
 <body>
+
 <div class="card">
-  <h1>LMS PKBM SSK</h1>
-  <p class="sub">PKBM Soemarno Soekarjadi Kartowikromo</p>
+  <div class="brand-header">
+    <!-- Logo otomatis tampil jika file logo.png sudah diunggah ke GitHub -->
+    <img src="logo.png" alt="Logo PKBM" class="logo-sekolah" onerror="this.style.display='none'">
+    <span class="badge-portal">Learning Management System</span>
+    <h1>PKBM Soemarno Soekarjadi Kartowikromo</h1>
+    <p class="sub">Paket A • Paket B • Paket C</p>
+  </div>
+
   <div id="alertBox" class="alert"></div>
+
   <form id="loginForm">
     <label for="username">NISN / Username</label>
-    <input type="text" id="username" placeholder="Contoh: 0081234567 atau admin" required>
+    <div class="input-group">
+      <input type="text" id="username" placeholder="Masukkan NISN atau Username" required autocomplete="username">
+    </div>
+
     <label for="password">Kata Sandi</label>
-    <input type="password" id="password" placeholder="Masukkan kata sandi" required>
-    <button type="submit" id="btnLogin">Masuk ke Sistem</button>
+    <div class="input-group">
+      <input type="password" id="password" placeholder="Masukkan kata sandi" required autocomplete="current-password" style="padding-right: 65px;">
+      <button type="button" class="toggle-pass" id="togglePass">Lihat</button>
+    </div>
+
+    <button type="submit" class="btn-submit" id="btnLogin">Masuk ke Portal</button>
   </form>
+
+  <div class="footer-note">
+    Gunakan NISN (Warga Belajar) atau Username (Tutor/Pengelola).<br>
+    Kendala akun hubungi Pengelola PKBM.
+  </div>
 </div>
 
 <script type="module">
@@ -67,6 +188,15 @@
   const auth = getAuth(app);
   const db = getDatabase(app);
 
+  // Fitur lihat / sembunyikan kata sandi
+  const passInput = document.getElementById('password');
+  const toggleBtn = document.getElementById('togglePass');
+  toggleBtn.addEventListener('click', () => {
+    const isHidden = passInput.type === 'password';
+    passInput.type = isHidden ? 'text' : 'password';
+    toggleBtn.textContent = isHidden ? 'Tutup' : 'Lihat';
+  });
+
   document.getElementById('loginForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const alertBox = document.getElementById('alertBox');
@@ -76,7 +206,7 @@
     btnLogin.textContent = 'Memeriksa akun...';
 
     let rawUser = document.getElementById('username').value.trim().toLowerCase();
-    const password = document.getElementById('password').value;
+    const password = passInput.value;
     const email = rawUser.includes('@') ? rawUser : `${rawUser}@pkbm-ssk.id`;
 
     try {
@@ -97,9 +227,10 @@
       alertBox.style.display = 'block';
     } finally {
       btnLogin.disabled = false;
-      btnLogin.textContent = 'Masuk ke Sistem';
+      btnLogin.textContent = 'Masuk ke Portal';
     }
   });
 </script>
+
 </body>
 </html>
