@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Tutor - PKBM SSK</title>
+  <style>
+    * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+    body { margin: 0; background: #f8fafc; color: #1e293b; padding-bottom: 40px; }
+    header {
+      background: #1e40af; color: #fff; padding: 16px 20px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    header h1 { font-size: 1.05rem; margin: 0; }
+    header small { display: block; font-size: 0.8rem; opacity: 0.9; }
+    .btn-logout {
+      background: rgba(255,255,255,0.2); color: #fff; border: none;
+      padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; cursor: pointer;
+    }
+    .container { max-width: 820px; margin: 0 auto; padding: 16px; }
+    .section-title {
+      font-size: 1rem; font-weight: 700; margin: 22px 0 10px;
+      color: #0f172a; border-left: 4px solid #1e40af; padding-left: 8px;
+    }
+    .card {
+      background: #fff; border-radius: 10px; padding: 16px;
+      margin-bottom: 14px; border: 1px solid #e2e8f0;
+    }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    @media (max-width: 600px) { .grid-2 { grid-template-columns: 1fr; } }
+    label { display: block; font-size: 0.8rem; font-weight: 600; color: #475569; margin-bottom: 4px; }
+    input, select, textarea {
+      width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1;
+      border-radius: 6px; font-size: 0.88rem; margin-bottom: 10px;
+    }
+    .btn-primary {
+      background: #1e40af; color: #fff; border: none; padding: 9px 16px;
+      border-radius: 6px; font-size: 0.88rem; font-weight: 600; cursor: pointer;
+    }
+    .btn-danger {
+      background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca;
+      padding: 5px 10px; border-radius: 6px; font-size: 0.78rem; cursor: pointer; float: right;
+    }
+    .badge {
+      display: inline-block; font-size: 0.72rem; font-weight: 600;
+      padding: 3px 8px; border-radius: 99px; background: #dbeafe; color: #1e40af;
+    }
+    .meta { font-size: 0.82rem; color: #64748b; margin: 4px 0 10px; }
+    .submission-item {
+      background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;
+      padding: 12px; margin-top: 10px;
+    }
+    .nilai-row { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+    .nilai-row input[type="number"] { width: 90px; margin-bottom: 0; }
+    .nilai-row input[type="text"] { flex: 1; min-width: 180px; margin-bottom: 0; }
+    .btn-save-nilai {
+      background: #0d9488; color: #fff; border: none; padding: 8px 12px;
+      border-radius: 6px; font-size: 0.82rem; font-weight: 600; cursor: pointer;
+    }
+    .btn-drive {
+      display: inline-block; text-decoration: none; background: #eff6ff;
+      color: #1d4ed8; padding: 4px 10px; border-radius: 5px; font-size: 0.8rem;
+      font-weight: 600; border: 1px solid #bfdbfe;
+    }
+    .hadir-pill {
+      display: inline-block; background: #dcfce7; color: #166534;
+      padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; margin: 4px 4px 0 0;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1 id="namaTutor">Memuat profil Tutor...</h1>
+    <small id="infoTutor">PKBM Soemarno Soekarjadi Kartowikromo</small>
+  </div>
+  <button class="btn-logout" id="btnLogout">Keluar</button>
+</header>
+
+<div class="container">
+  <div class="section-title">Rekap Kehadiran Warga Belajar</div>
+  <div class="card">
+    <label>Pilih Tanggal Pertemuan</label>
+    <input type="date" id="filterTglPresensi" style="max-width: 220px;">
+    <div id="hasilPresensiTutor"><p class="meta">Memuat data kehadiran...</p></div>
+  </div>
+
+  <div class="section-title">Buat Tugas Baru untuk Warga Belajar</div>
+  <div class="card">
+    <form id="formTugas">
+      <div class="grid-2">
+        <div>
+          <label>Program Paket</label>
+          <select id="tPaket" required>
+            <option value="Paket A">Paket A (Setara SD)</option>
+            <option value="Paket B">Paket B (Setara SMP)</option>
+            <option value="Paket C" selected>Paket C (Setara SMA)</option>
+          </select>
+        </div>
+        <div>
+          <label>Kelas / Tingkatan</label>
+          <input type="text" id="tKelas" placeholder="Contoh: X, XI, atau XII" required>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div>
+          <label>Mata Pelajaran</label>
+          <input type="text" id="tMapel" placeholder="Contoh: Ekonomi" required>
+        </div>
+        <div>
+          <label>Tenggat Pengumpulan</label>
+          <input type="date" id="tTenggat" required>
+        </div>
+      </div>
+      <label>Judul Tugas</label>
+      <input type="text" id="tJudul" placeholder="Contoh: Praktik Pembukuan Usaha Mikro" required>
+      <label>Instruksi Pengerjaan</label>
+      <textarea id="tDeskripsi" rows="2" placeholder="Jelaskan tugas dan format file Google Drive..." required></textarea>
+      <button type="submit" class="btn-primary">Terbitkan Tugas</button>
+    </form>
+  </div>
+
+  <div class="section-title">Daftar Tugas & Penilaian Warga Belajar</div>
+  <div id="listTugasTutor"><p class="meta">Memuat daftar tugas...</p></div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getDatabase, ref, get, push, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+  // TEMPEL KONFIGURASI FIREBASE SEKOLAH DI SINI
+  const firebaseConfig = {
+    apiKey: "AIzaSyD301EhbL-k9Sv0XqP59A7dRRhdUNBD0Oo",
+    authDomain: "lms-pkbm-ssk.firebaseapp.com",
+    databaseURL: "https://lms-pkbm-ssk-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "lms-pkbm-ssk",
+    storageBucket: "lms-pkbm-ssk.firebasestorage.app",
+    messagingSenderId: "959055443023",
+    appId: "1:959055443023:web:c49e5d81114f1004f1e63a"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getDatabase(app);
+
+  const inputTgl = document.getElementById('filterTglPresensi');
+  inputTgl.value = new Date().toLocaleDateString('en-CA');
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { window.location.href = 'index.html'; return; }
+    const snap = await get(ref(db, `users/${user.uid}`));
+    if (!snap.exists() || (snap.val().role !== 'tutor' && snap.val().role !== 'pengelola')) {
+      window.location.href = 'index.html'; return;
+    }
+    const data = snap.val();
+    document.getElementById('namaTutor').textContent = data.nama;
+    document.getElementById('infoTutor').textContent = `Tutor ${data.mapel || 'Umum'} • PKBM SSK`;
+    muatPresensi(inputTgl.value);
+    muatTugasDanKiriman();
+  });
+
+  inputTgl.addEventListener('change', (e) => muatPresensi(e.target.value));
+
+  function muatPresensi(tgl) {
+    onValue(ref(db, `presensi/${tgl}`), (snap) => {
+      const box = document.getElementById('hasilPresensiTutor');
+      box.innerHTML = '';
+      if (!snap.exists()) {
+        box.innerHTML = '<p class="meta">Belum ada presensi tercatat pada tanggal ini.</p>';
+        return;
+      }
+      snap.forEach((jadwalNode) => {
+        const siswaMap = jadwalNode.val();
+        const uids = Object.keys(siswaMap);
+        const infoPertama = siswaMap[uids[0]];
+        let daftarNama = '';
+        uids.forEach((uid) => {
+          const s = siswaMap[uid];
+          daftarNama += `<span class="hadir-pill">✓ ${s.nama_siswa} (${s.jam_absen})</span>`;
+        });
+        box.innerHTML += `
+          <div style="margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid #f1f5f9;">
+            <strong>${infoPertama.mapel}</strong> (${infoPertama.paket} Kls ${infoPertama.kelas}) — Total Hadir: ${uids.length}<br>
+            ${daftarNama}
+          </div>
+        `;
+      });
+    });
+  }
+
+  document.getElementById('formTugas').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    await push(ref(db, 'tugas'), {
+      paket: document.getElementById('tPaket').value,
+      kelas: document.getElementById('tKelas').value.trim().toUpperCase(),
+      mapel: document.getElementById('tMapel').value.trim(),
+      tenggat: document.getElementById('tTenggat').value,
+      judul: document.getElementById('tJudul').value.trim(),
+      deskripsi: document.getElementById('tDeskripsi').value.trim()
+    });
+    e.target.reset();
+    alert('Tugas berhasil diterbitkan!');
+  });
+
+  function muatTugasDanKiriman() {
+    onValue(ref(db, 'tugas'), (tugasSnap) => {
+      onValue(ref(db, 'pengumpulan'), (kumpulSnap) => {
+        const container = document.getElementById('listTugasTutor');
+        container.innerHTML = '';
+        const semuaKumpul = kumpulSnap.val() || {};
+        if (!tugasSnap.exists()) { container.innerHTML = '<p class="meta">Belum ada tugas.</p>'; return; }
+
+        tugasSnap.forEach((child) => {
+          const idTugas = child.key;
+          const t = child.val();
+          const kirimanObj = semuaKumpul[idTugas] || {};
+          const daftarSiswaIds = Object.keys(kirimanObj);
+
+          let htmlKiriman = daftarSiswaIds.length === 0
+            ? `<p class="meta" style="margin-top:10px;">Belum ada warga belajar yang mengumpulkan.</p>`
+            : '';
+
+          daftarSiswaIds.forEach((uidSiswa) => {
+            const k = kirimanObj[uidSiswa];
+            htmlKiriman += `
+              <div class="submission-item">
+                <div style="display:flex; justify-content:space-between; flex-wrap:wrap;">
+                  <strong>${k.nama_siswa}</strong>
+                  <span class="meta" style="margin:0;">Dikirim: ${k.waktu_kumpul}</span>
+                </div>
+                <div style="margin-top:6px;">
+                  <a href="${k.link_file_drive}" target="_blank" class="btn-drive">Lihat File Tugas di Google Drive</a>
+                </div>
+                <div class="nilai-row">
+                  <input type="number" id="nilai_${idTugas}_${uidSiswa}" min="0" max="100" placeholder="Nilai" value="${k.nilai ?? ''}">
+                  <input type="text" id="catatan_${idTugas}_${uidSiswa}" placeholder="Catatan evaluasi..." value="${k.catatan_tutor || ''}">
+                  <button class="btn-save-nilai" onclick="simpanNilai('${idTugas}', '${uidSiswa}')">Simpan Nilai</button>
+                </div>
+              </div>
+            `;
+          });
+
+          container.innerHTML += `
+            <div class="card">
+              <button class="btn-danger" onclick="hapusTugas('${idTugas}')">Hapus Tugas</button>
+              <span class="badge">${t.paket} • Kelas ${t.kelas} • ${t.mapel}</span>
+              <h3 style="margin:8px 0 4px;">${t.judul}</h3>
+              <div class="meta">Tenggat: ${t.tenggat} • ${t.deskripsi}</div>
+              <div><strong>Kiriman Warga Belajar (${daftarSiswaIds.length}):</strong></div>
+              ${htmlKiriman}
+            </div>
+          `;
+        });
+      });
+    });
+  }
+
+  window.simpanNilai = async (idTugas, uidSiswa) => {
+    const nilai = document.getElementById(`nilai_${idTugas}_${uidSiswa}`).value;
+    const catatan = document.getElementById(`catatan_${idTugas}_${uidSiswa}`).value.trim();
+    if (nilai === '') { alert('Masukkan angka nilai terlebih dahulu.'); return; }
+    await update(ref(db, `pengumpulan/${idTugas}/${uidSiswa}`), { nilai: Number(nilai), catatan_tutor: catatan });
+    alert('Nilai berhasil disimpan!');
+  };
+
+  window.hapusTugas = async (idTugas) => {
+    if (confirm('Hapus tugas ini beserta seluruh riwayat pengumpulannya?')) {
+      await remove(ref(db, `tugas/${idTugas}`));
+      await remove(ref(db, `pengumpulan/${idTugas}`));
+    }
+  };
+
+  document.getElementById('btnLogout').addEventListener('click', () => {
+    signOut(auth).then(() => window.location.href = 'index.html');
+  });
+</script>
+</body>
+</html>
