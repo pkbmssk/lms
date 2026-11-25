@@ -104,7 +104,6 @@
   let currentUser = null;
   let siswaData = null;
 
-  // Format tanggal YYYY-MM-DD waktu lokal
   const todayObj = new Date();
   const todayKey = todayObj.toLocaleDateString('en-CA');
   document.getElementById('tglHariIni').textContent = todayObj.toLocaleDateString('id-ID', {
@@ -130,40 +129,57 @@
       onValue(ref(db, `presensi/${todayKey}`), (presensiSnap) => {
         const container = document.getElementById('listJadwal');
         container.innerHTML = '';
-        let ada = false;
         const dataPresensiHariIni = presensiSnap.val() || {};
 
+        const daftar = [];
         jadwalSnap.forEach((child) => {
-          const idJadwal = child.key;
           const item = child.val();
-
           if (item.paket === siswaData.paket && item.kelas === siswaData.kelas) {
-            ada = true;
-            const sudahHadir = dataPresensiHariIni[idJadwal] && dataPresensiHariIni[idJadwal][currentUser.uid];
-
-            const btnPresensi = sudahHadir
-              ? `<span class="btn-hadir-done">✓ Hadir (${sudahHadir.jam_absen})</span>`
-              : `<button class="btn-hadir" onclick="isiPresensi('${idJadwal}', '${item.mapel}')">Klik Hadir Hari Ini</button>`;
-
-            const modulBtn = item.link_modul_drive
-              ? `<a href="${item.link_modul_drive}" target="_blank" class="btn-link">Buka Modul (Drive)</a>`
-              : ``;
-
-            container.innerHTML += `
-              <div class="card">
-                <span class="badge">${item.hari} • ${item.jam}</span>
-                <h3>${item.mapel}</h3>
-                <div class="meta">Tutor: ${item.tutor_nama}</div>
-                <div class="action-row">
-                  ${btnPresensi}
-                  ${modulBtn}
-                </div>
-              </div>
-            `;
+            if (!item.tanggal || item.tanggal >= todayKey) {
+              daftar.push({ id: child.key, ...item });
+            }
           }
         });
 
-        if (!ada) container.innerHTML = '<p class="meta">Belum ada jadwal untuk paket & kelas Anda.</p>';
+        daftar.sort((a, b) => (a.tanggal || '').localeCompare(b.tanggal || ''));
+
+        if (daftar.length === 0) {
+          container.innerHTML = '<p class="meta">Belum ada jadwal pertemuan aktif untuk paket & kelas Anda.</p>';
+          return;
+        }
+
+        daftar.forEach((item) => {
+          const isHariIni = item.tanggal === todayKey;
+          const sudahHadir = dataPresensiHariIni[item.id] && dataPresensiHariIni[item.id][currentUser.uid];
+          const tglLabel = item.tanggal
+            ? new Date(item.tanggal + 'T00:00:00').toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
+            : '';
+
+          let btnPresensi = '';
+          if (isHariIni) {
+            btnPresensi = sudahHadir
+              ? `<span class="btn-hadir-done">✓ Hadir (${sudahHadir.jam_absen})</span>`
+              : `<button class="btn-hadir" onclick="isiPresensi('${item.id}', '${item.mapel}')">Klik Hadir Hari Ini</button>`;
+          } else {
+            btnPresensi = `<span class="meta" style="margin:0;">Presensi dibuka pada ${item.hari}, ${tglLabel}</span>`;
+          }
+
+          const modulBtn = item.link_modul_drive
+            ? `<a href="${item.link_modul_drive}" target="_blank" class="btn-link">Buka Modul (Drive)</a>`
+            : ``;
+
+          container.innerHTML += `
+            <div class="card" style="${isHariIni ? 'border-color:#0d9488; border-width:1.5px;' : ''}">
+              <span class="badge">${isHariIni ? 'HARI INI • ' : ''}${item.hari}, ${tglLabel} • ${item.jam}</span>
+              <h3>${item.mapel}</h3>
+              <div class="meta">Tutor: ${item.tutor_nama}</div>
+              <div class="action-row">
+                ${btnPresensi}
+                ${modulBtn}
+              </div>
+            </div>
+          `;
+        });
       });
     });
   }
