@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel Pengelola - PKBM SSK</title>
+  <style>
+    * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+    body { margin: 0; background: #f8fafc; color: #1e293b; padding-bottom: 40px; }
+    header {
+      background: #0f172a; color: #fff; padding: 16px 20px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    header h1 { font-size: 1.05rem; margin: 0; }
+    header small { display: block; font-size: 0.8rem; opacity: 0.85; }
+    .header-actions { display: flex; gap: 8px; }
+    .btn-nav {
+      background: #334155; color: #fff; text-decoration: none;
+      padding: 6px 12px; border-radius: 6px; font-size: 0.8rem;
+    }
+    .btn-logout {
+      background: #dc2626; color: #fff; border: none;
+      padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; cursor: pointer;
+    }
+    .container { max-width: 860px; margin: 0 auto; padding: 16px; }
+    .section-title {
+      font-size: 1rem; font-weight: 700; margin: 22px 0 10px;
+      color: #0f172a; border-left: 4px solid #0f172a; padding-left: 8px;
+    }
+    .card {
+      background: #fff; border-radius: 10px; padding: 16px;
+      margin-bottom: 14px; border: 1px solid #e2e8f0;
+    }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    @media (max-width: 650px) { .grid-3, .grid-2 { grid-template-columns: 1fr; } }
+    label { display: block; font-size: 0.8rem; font-weight: 600; color: #475569; margin-bottom: 4px; }
+    input, select {
+      width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1;
+      border-radius: 6px; font-size: 0.88rem; margin-bottom: 10px;
+    }
+    .btn-primary {
+      background: #0f172a; color: #fff; border: none; padding: 9px 16px;
+      border-radius: 6px; font-size: 0.88rem; font-weight: 600; cursor: pointer;
+    }
+    .list-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px 0; border-bottom: 1px solid #f1f5f9; gap: 10px;
+    }
+    .list-row:last-child { border-bottom: none; }
+    .badge {
+      display: inline-block; font-size: 0.72rem; font-weight: 600;
+      padding: 2px 8px; border-radius: 99px; background: #e2e8f0; color: #1e293b;
+    }
+    .meta { font-size: 0.82rem; color: #64748b; }
+    .btn-del {
+      background: #fee2e2; color: #b91c1c; border: none;
+      padding: 5px 10px; border-radius: 6px; font-size: 0.78rem; cursor: pointer;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 0.84rem; margin-top: 8px; }
+    th, td { border: 1px solid #e2e8f0; padding: 8px; text-align: left; }
+    th { background: #f8fafc; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1 id="namaAdmin">Panel Pengelola PKBM</h1>
+    <small>PKBM Soemarno Soekarjadi Kartowikromo</small>
+  </div>
+  <div class="header-actions">
+    <a href="tutor.html" class="btn-nav">Mode Tutor</a>
+    <button class="btn-logout" id="btnLogout">Keluar</button>
+  </div>
+</header>
+
+<div class="container">
+  <div class="section-title">1. Monitoring Presensi Warga Belajar</div>
+  <div class="card">
+    <label>Pilih Tanggal Kehadiran</label>
+    <input type="date" id="tglPresensiAdmin" style="max-width: 220px;">
+    <div id="tabelPresensiAdmin"><p class="meta">Memuat presensi...</p></div>
+  </div>
+
+  <div class="section-title">2. Tambah Jadwal Pembelajaran & Modul Drive</div>
+  <div class="card">
+    <form id="formJadwal">
+      <div class="grid-3">
+        <div>
+          <label>Paket</label>
+          <select id="jPaket">
+            <option value="Paket A">Paket A</option>
+            <option value="Paket B">Paket B</option>
+            <option value="Paket C" selected>Paket C</option>
+          </select>
+        </div>
+        <div>
+          <label>Kelas</label>
+          <input type="text" id="jKelas" placeholder="Contoh: XI" required>
+        </div>
+        <div>
+          <label>Hari</label>
+          <select id="jHari">
+            <option>Senin</option><option>Selasa</option><option>Rabu</option>
+            <option>Kamis</option><option>Jumat</option><option selected>Sabtu</option><option>Minggu</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid-3">
+        <div>
+          <label>Jam Belajar</label>
+          <input type="text" id="jJam" placeholder="13.00 - 14.30" required>
+        </div>
+        <div>
+          <label>Mata Pelajaran</label>
+          <input type="text" id="jMapel" placeholder="Ekonomi" required>
+        </div>
+        <div>
+          <label>Nama Tutor</label>
+          <input type="text" id="jTutor" placeholder="Pak Ipung" required>
+        </div>
+      </div>
+      <label>Link Modul Google Drive (Opsional)</label>
+      <input type="url" id="jLink" placeholder="https://drive.google.com/...">
+      <button type="submit" class="btn-primary">Simpan Jadwal</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <strong>Daftar Jadwal Aktif</strong>
+    <div id="daftarJadwal" style="margin-top:8px;"><p class="meta">Memuat jadwal...</p></div>
+  </div>
+
+  <div class="section-title">3. Registrasi Profil Pengguna (Siswa / Tutor / Pengelola)</div>
+  <div class="card">
+    <p class="meta" style="margin-top:0;">Buat akun email/password di Firebase Authentication terlebih dahulu, lalu salin <strong>User UID</strong>-nya ke form ini.</p>
+    <form id="formUser">
+      <div class="grid-2">
+        <div>
+          <label>User UID (dari Firebase Auth)</label>
+          <input type="text" id="uUid" placeholder="Tempel User UID..." required>
+        </div>
+        <div>
+          <label>Nama Lengkap</label>
+          <input type="text" id="uNama" placeholder="Contoh: Siti Aminah" required>
+        </div>
+      </div>
+      <div class="grid-3">
+        <div>
+          <label>Peran (Role)</label>
+          <select id="uRole">
+            <option value="siswa">Siswa (Warga Belajar)</option>
+            <option value="tutor">Tutor</option>
+            <option value="pengelola">Pengelola</option>
+          </select>
+        </div>
+        <div>
+          <label>Paket (Khusus Siswa)</label>
+          <select id="uPaket">
+            <option value="Paket A">Paket A</option>
+            <option value="Paket B">Paket B</option>
+            <option value="Paket C" selected>Paket C</option>
+            <option value="Semua">Semua (Tutor/Admin)</option>
+          </select>
+        </div>
+        <div>
+          <label>Kelas (Khusus Siswa)</label>
+          <input type="text" id="uKelas" placeholder="Contoh: XI">
+        </div>
+      </div>
+      <div class="grid-2">
+        <div>
+          <label>NISN (Jika Siswa)</label>
+          <input type="text" id="uNisn" placeholder="0081234567">
+        </div>
+        <div>
+          <label>Mata Pelajaran (Jika Tutor)</label>
+          <input type="text" id="uMapel" placeholder="Contoh: Ekonomi & Sejarah">
+        </div>
+      </div>
+      <button type="submit" class="btn-primary">Simpan Profil Pengguna</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <strong>Daftar Pengguna Terdaftar</strong>
+    <div id="daftarUser" style="margin-top:8px;"><p class="meta">Memuat pengguna...</p></div>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getDatabase, ref, get, push, set, onValue, remove } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+  // TEMPEL KONFIGURASI FIREBASE SEKOLAH DI SINI
+  const firebaseConfig = {
+    apiKey: "AIzaSyD301EhbL-k9Sv0XqP59A7dRRhdUNBD0Oo",
+    authDomain: "lms-pkbm-ssk.firebaseapp.com",
+    databaseURL: "https://lms-pkbm-ssk-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "lms-pkbm-ssk",
+    storageBucket: "lms-pkbm-ssk.firebasestorage.app",
+    messagingSenderId: "959055443023",
+    appId: "1:959055443023:web:c49e5d81114f1004f1e63a"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getDatabase(app);
+
+  const tglInput = document.getElementById('tglPresensiAdmin');
+  tglInput.value = new Date().toLocaleDateString('en-CA');
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { window.location.href = 'index.html'; return; }
+    const snap = await get(ref(db, `users/${user.uid}`));
+    if (!snap.exists() || snap.val().role !== 'pengelola') { window.location.href = 'index.html'; return; }
+    document.getElementById('namaAdmin').textContent = `Pengelola: ${snap.val().nama}`;
+    muatPresensiAdmin(tglInput.value);
+    muatJadwal();
+    muatUsers();
+  });
+
+  tglInput.addEventListener('change', (e) => muatPresensiAdmin(e.target.value));
+
+  function muatPresensiAdmin(tgl) {
+    onValue(ref(db, `presensi/${tgl}`), (snap) => {
+      const box = document.getElementById('tabelPresensiAdmin');
+      if (!snap.exists()) {
+        box.innerHTML = '<p class="meta">Tidak ada data presensi pada tanggal tersebut.</p>';
+        return;
+      }
+      let rows = '';
+      snap.forEach((jadwalNode) => {
+        const siswaMap = jadwalNode.val();
+        Object.keys(siswaMap).forEach((uid) => {
+          const s = siswaMap[uid];
+          rows += `
+            <tr>
+              <td>${s.nama_siswa}</td>
+              <td>${s.nisn}</td>
+              <td>${s.paket} Kls ${s.kelas}</td>
+              <td>${s.mapel}</td>
+              <td>${s.jam_absen}</td>
+            </tr>
+          `;
+        });
+      });
+      box.innerHTML = `
+        <table>
+          <thead><tr><th>Nama</th><th>NISN</th><th>Paket/Kls</th><th>Mapel</th><th>Jam</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      `;
+    });
+  }
+
+  document.getElementById('formJadwal').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    await push(ref(db, 'jadwal'), {
+      paket: document.getElementById('jPaket').value,
+      kelas: document.getElementById('jKelas').value.trim().toUpperCase(),
+      hari: document.getElementById('jHari').value,
+      jam: document.getElementById('jJam').value.trim(),
+      mapel: document.getElementById('jMapel').value.trim(),
+      tutor_nama: document.getElementById('jTutor').value.trim(),
+      link_modul_drive: document.getElementById('jLink').value.trim()
+    });
+    e.target.reset();
+    alert('Jadwal berhasil ditambahkan!');
+  });
+
+  function muatJadwal() {
+    onValue(ref(db, 'jadwal'), (snap) => {
+      const el = document.getElementById('daftarJadwal');
+      el.innerHTML = '';
+      if (!snap.exists()) { el.innerHTML = '<p class="meta">Belum ada jadwal.</p>'; return; }
+      snap.forEach((child) => {
+        const j = child.val();
+        el.innerHTML += `
+          <div class="list-row">
+            <div>
+              <span class="badge">${j.paket} • Kls ${j.kelas}</span>
+              <strong>${j.mapel}</strong> (${j.hari}, ${j.jam})<br>
+              <span class="meta">Tutor: ${j.tutor_nama}</span>
+            </div>
+            <button class="btn-del" onclick="hapusNode('jadwal/${child.key}')">Hapus</button>
+          </div>
+        `;
+      });
+    });
+  }
+
+  document.getElementById('formUser').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const uid = document.getElementById('uUid').value.trim();
+    await set(ref(db, `users/${uid}`), {
+      nama: document.getElementById('uNama').value.trim(),
+      role: document.getElementById('uRole').value,
+      paket: document.getElementById('uPaket').value,
+      kelas: document.getElementById('uKelas').value.trim().toUpperCase(),
+      nisn: document.getElementById('uNisn').value.trim(),
+      mapel: document.getElementById('uMapel').value.trim()
+    });
+    e.target.reset();
+    alert('Profil pengguna berhasil disimpan!');
+  });
+
+  function muatUsers() {
+    onValue(ref(db, 'users'), (snap) => {
+      const el = document.getElementById('daftarUser');
+      el.innerHTML = '';
+      if (!snap.exists()) { el.innerHTML = '<p class="meta">Belum ada pengguna.</p>'; return; }
+      snap.forEach((child) => {
+        const u = child.val();
+        el.innerHTML += `
+          <div class="list-row">
+            <div>
+              <span class="badge">${u.role.toUpperCase()}</span>
+              <strong>${u.nama}</strong><br>
+              <span class="meta">${u.role === 'siswa' ? `${u.paket} Kls ${u.kelas} • NISN: ${u.nisn}` : (u.mapel || 'Pengelola PKBM')}</span>
+            </div>
+            <button class="btn-del" onclick="hapusNode('users/${child.key}')">Hapus</button>
+          </div>
+        `;
+      });
+    });
+  }
+
+  window.hapusNode = async (path) => {
+    if (confirm('Yakin ingin menghapus data ini?')) await remove(ref(db, path));
+  };
+
+  document.getElementById('btnLogout').addEventListener('click', () => {
+    signOut(auth).then(() => window.location.href = 'index.html');
+  });
+</script>
+</body>
+</html>
