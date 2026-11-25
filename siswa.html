@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Warga Belajar - PKBM SSK</title>
+  <style>
+    * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+    body { margin: 0; background: #f8fafc; color: #1e293b; padding-bottom: 40px; }
+    header {
+      background: #0d9488; color: #fff; padding: 16px 20px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    header h1 { font-size: 1.05rem; margin: 0; }
+    header small { display: block; font-size: 0.8rem; opacity: 0.9; }
+    .btn-logout {
+      background: rgba(255,255,255,0.2); color: #fff; border: none;
+      padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; cursor: pointer;
+    }
+    .container { max-width: 720px; margin: 0 auto; padding: 16px; }
+    .section-title {
+      font-size: 1rem; font-weight: 700; margin: 20px 0 10px;
+      color: #0f172a; border-left: 4px solid #0d9488; padding-left: 8px;
+    }
+    .card {
+      background: #fff; border-radius: 10px; padding: 14px 16px;
+      margin-bottom: 12px; border: 1px solid #e2e8f0;
+    }
+    .badge {
+      display: inline-block; font-size: 0.72rem; font-weight: 600;
+      padding: 3px 8px; border-radius: 99px; background: #ccfbf1; color: #0f766e;
+    }
+    .badge-done { background: #dcfce7; color: #15803d; }
+    .card h3 { margin: 6px 0 4px; font-size: 1rem; }
+    .meta { font-size: 0.82rem; color: #64748b; margin-bottom: 10px; }
+    .action-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .btn-link {
+      display: inline-block; text-decoration: none; background: #f1f5f9;
+      color: #0f172a; padding: 7px 12px; border-radius: 6px;
+      font-size: 0.82rem; font-weight: 600; border: 1px solid #cbd5e1;
+    }
+    .btn-hadir {
+      background: #0284c7; color: #fff; border: none; padding: 7px 12px;
+      border-radius: 6px; font-size: 0.82rem; font-weight: 600; cursor: pointer;
+    }
+    .btn-hadir-done {
+      background: #dcfce7; color: #15803d; border: 1px solid #86efac;
+      padding: 7px 12px; border-radius: 6px; font-size: 0.82rem; font-weight: 600;
+    }
+    .submit-box { margin-top: 12px; padding-top: 12px; border-top: 1px dashed #cbd5e1; }
+    .submit-box input {
+      width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1;
+      border-radius: 6px; font-size: 0.85rem; margin-bottom: 8px;
+    }
+    .btn-submit {
+      background: #0d9488; color: #fff; border: none; padding: 8px 14px;
+      border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer;
+    }
+    .nilai-box {
+      background: #f0fdf4; border: 1px solid #bbf7d0; padding: 8px 12px;
+      border-radius: 6px; margin-top: 8px; font-size: 0.85rem; color: #166534;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1 id="namaSiswa">Memuat profil...</h1>
+    <small id="infoPaket">-</small>
+  </div>
+  <button class="btn-logout" id="btnLogout">Keluar</button>
+</header>
+
+<div class="container">
+  <div class="section-title">Jadwal Pembelajaran, Presensi & Modul</div>
+  <p class="meta" style="margin-top:0;">Tanggal Hari Ini: <strong id="tglHariIni">-</strong></p>
+  <div id="listJadwal"><p class="meta">Memuat jadwal...</p></div>
+
+  <div class="section-title">Daftar Tugas</div>
+  <div id="listTugas"><p class="meta">Memuat tugas...</p></div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getDatabase, ref, get, onValue, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+  // TEMPEL KONFIGURASI FIREBASE SEKOLAH DI SINI
+  const firebaseConfig = {
+    apiKey: "AIzaSyD301EhbL-k9Sv0XqP59A7dRRhdUNBD0Oo",
+    authDomain: "lms-pkbm-ssk.firebaseapp.com",
+    databaseURL: "https://lms-pkbm-ssk-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "lms-pkbm-ssk",
+    storageBucket: "lms-pkbm-ssk.firebasestorage.app",
+    messagingSenderId: "959055443023",
+    appId: "1:959055443023:web:c49e5d81114f1004f1e63a"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getDatabase(app);
+
+  let currentUser = null;
+  let siswaData = null;
+
+  // Format tanggal YYYY-MM-DD waktu lokal
+  const todayObj = new Date();
+  const todayKey = todayObj.toLocaleDateString('en-CA');
+  document.getElementById('tglHariIni').textContent = todayObj.toLocaleDateString('id-ID', {
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+  });
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { window.location.href = 'index.html'; return; }
+    currentUser = user;
+    const snap = await get(ref(db, `users/${user.uid}`));
+    if (!snap.exists() || snap.val().role !== 'siswa') { window.location.href = 'index.html'; return; }
+
+    siswaData = snap.val();
+    document.getElementById('namaSiswa').textContent = siswaData.nama;
+    document.getElementById('infoPaket').textContent = `${siswaData.paket} • Kelas ${siswaData.kelas} • NISN: ${siswaData.nisn || '-'}`;
+
+    muatJadwalDanPresensi();
+    muatTugas();
+  });
+
+  function muatJadwalDanPresensi() {
+    onValue(ref(db, 'jadwal'), (jadwalSnap) => {
+      onValue(ref(db, `presensi/${todayKey}`), (presensiSnap) => {
+        const container = document.getElementById('listJadwal');
+        container.innerHTML = '';
+        let ada = false;
+        const dataPresensiHariIni = presensiSnap.val() || {};
+
+        jadwalSnap.forEach((child) => {
+          const idJadwal = child.key;
+          const item = child.val();
+
+          if (item.paket === siswaData.paket && item.kelas === siswaData.kelas) {
+            ada = true;
+            const sudahHadir = dataPresensiHariIni[idJadwal] && dataPresensiHariIni[idJadwal][currentUser.uid];
+
+            const btnPresensi = sudahHadir
+              ? `<span class="btn-hadir-done">✓ Hadir (${sudahHadir.jam_absen})</span>`
+              : `<button class="btn-hadir" onclick="isiPresensi('${idJadwal}', '${item.mapel}')">Klik Hadir Hari Ini</button>`;
+
+            const modulBtn = item.link_modul_drive
+              ? `<a href="${item.link_modul_drive}" target="_blank" class="btn-link">Buka Modul (Drive)</a>`
+              : ``;
+
+            container.innerHTML += `
+              <div class="card">
+                <span class="badge">${item.hari} • ${item.jam}</span>
+                <h3>${item.mapel}</h3>
+                <div class="meta">Tutor: ${item.tutor_nama}</div>
+                <div class="action-row">
+                  ${btnPresensi}
+                  ${modulBtn}
+                </div>
+              </div>
+            `;
+          }
+        });
+
+        if (!ada) container.innerHTML = '<p class="meta">Belum ada jadwal untuk paket & kelas Anda.</p>';
+      });
+    });
+  }
+
+  window.isiPresensi = async (idJadwal, mapel) => {
+    const jamSekarang = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+    try {
+      await set(ref(db, `presensi/${todayKey}/${idJadwal}/${currentUser.uid}`), {
+        nama_siswa: siswaData.nama,
+        nisn: siswaData.nisn || '-',
+        paket: siswaData.paket,
+        kelas: siswaData.kelas,
+        mapel: mapel,
+        jam_absen: jamSekarang,
+        status: 'Hadir'
+      });
+      alert(`Presensi kehadiran ${mapel} berhasil dicatat!`);
+    } catch (err) {
+      alert('Gagal mencatat presensi.');
+    }
+  };
+
+  function muatTugas() {
+    onValue(ref(db, 'tugas'), (tugasSnap) => {
+      onValue(ref(db, 'pengumpulan'), (kumpulSnap) => {
+        const container = document.getElementById('listTugas');
+        container.innerHTML = '';
+        let ada = false;
+        const semuaKumpul = kumpulSnap.val() || {};
+
+        tugasSnap.forEach((child) => {
+          const idTugas = child.key;
+          const t = child.val();
+
+          if (t.paket === siswaData.paket && t.kelas === siswaData.kelas) {
+            ada = true;
+            const jawabanSaya = semuaKumpul[idTugas] ? semuaKumpul[idTugas][currentUser.uid] : null;
+            const statusBadge = jawabanSaya
+              ? `<span class="badge badge-done">Sudah Dikumpulkan</span>`
+              : `<span class="badge">Belum Dikumpulkan</span>`;
+
+            let infoNilai = '';
+            if (jawabanSaya && jawabanSaya.nilai !== undefined && jawabanSaya.nilai !== '') {
+              infoNilai = `
+                <div class="nilai-box">
+                  <strong>Nilai: ${jawabanSaya.nilai}</strong><br>
+                  Catatan Tutor: ${jawabanSaya.catatan_tutor || '-'}
+                </div>`;
+            }
+
+            const linkSebelumnya = jawabanSaya ? jawabanSaya.link_file_drive : '';
+
+            container.innerHTML += `
+              <div class="card">
+                ${statusBadge}
+                <h3>${t.mapel}: ${t.judul}</h3>
+                <div class="meta">Tenggat: ${t.tenggat} • ${t.deskripsi}</div>
+                <div class="submit-box">
+                  <input type="url" id="input_${idTugas}" value="${linkSebelumnya}" placeholder="Tempel link Google Drive tugas Anda di sini...">
+                  <button class="btn-submit" onclick="kirimTugas('${idTugas}')">
+                    ${jawabanSaya ? 'Perbarui Link Tugas' : 'Kirim Tugas'}
+                  </button>
+                  ${infoNilai}
+                </div>
+              </div>
+            `;
+          }
+        });
+
+        if (!ada) container.innerHTML = '<p class="meta">Belum ada tugas aktif.</p>';
+      });
+    });
+  }
+
+  window.kirimTugas = async (idTugas) => {
+    const link = document.getElementById(`input_${idTugas}`).value.trim();
+    if (!link) { alert('Harap masukkan tautan Google Drive file tugas terlebih dahulu.'); return; }
+
+    const waktu = new Date().toLocaleString('id-ID');
+    try {
+      await set(ref(db, `pengumpulan/${idTugas}/${currentUser.uid}`), {
+        nama_siswa: siswaData.nama,
+        waktu_kumpul: waktu,
+        link_file_drive: link
+      });
+      alert('Tugas berhasil dikirim!');
+    } catch (err) {
+      alert('Gagal mengirim tugas.');
+    }
+  };
+
+  document.getElementById('btnLogout').addEventListener('click', () => {
+    signOut(auth).then(() => window.location.href = 'index.html');
+  });
+</script>
+</body>
+</html>
